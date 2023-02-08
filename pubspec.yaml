@@ -1,7 +1,8 @@
 name: flutter_2fa
 description: A flutter package to enable Two Factor Authentication in your app with an Authenticator.
 version: 0.0.1
-homepage: home
+homepage: https://github.com/Hipheckts/Flutter-2FA.git
+repository: https://github.com/Hipheckts/Flutter-2FA.git
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
