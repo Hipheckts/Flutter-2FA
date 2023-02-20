@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pinput/pinput.dart';
 
 class VerifyCode extends StatefulWidget {
-  final successPage;
+  final Widget successPage;
   const VerifyCode({Key? key, required this.successPage}) : super(key: key);
 
   @override

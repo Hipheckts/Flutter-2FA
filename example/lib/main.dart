@@ -45,12 +45,8 @@ class MyHome extends StatelessWidget {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () => Flutter2FA().verify(
-                        context: context,
-                        page: const Scaffold(
-                          body: Center(
-                              child: Text("user logged In Successfully!")),
-                        )),
+                    onPressed: () => Flutter2FA()
+                        .verify(context: context, page: const Success()),
                     style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all<Color>(Colors.green),
@@ -59,6 +55,17 @@ class MyHome extends StatelessWidget {
                   ))
             ],
           )),
+    );
+  }
+}
+
+class Success extends StatelessWidget {
+  const Success({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text("user logged In Successfully!")),
     );
   }
 }
