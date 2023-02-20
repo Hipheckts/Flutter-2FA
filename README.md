@@ -2,7 +2,7 @@
 
 `** This is an unofficial SDK for flutter`
 
-This package to helps adds 2 Factor Authentiation in any flutter project with ease.
+🔐 This package to helps adds 2 Factor Authentiation in any flutter project with ease.
 
 ## 📸 Screen Shots
 

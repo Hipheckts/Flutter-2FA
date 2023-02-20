@@ -48,6 +48,8 @@ class _GenerateCodeState extends State<GenerateCode> {
         body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        const Text('Scan Code from Authenticator'),
+        const SizedBox(height: 20),
         QrImage(
           data:
               'otpauth://totp/${widget.appName}:${widget.email}?secret=$secKey&issuer=${widget.appName}&algorithm=SHA1',
