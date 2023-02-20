@@ -7,11 +7,11 @@ This package to helps adds 2 Factor Authentiation in any flutter project with ea
 ## 📸 Screen Shots
 
 <p float="left">
-<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_1.png?raw=true" width="200">
-<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_2.png?raw=true" width="200">
-<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_3.png?raw=true" width="200">
-<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_4.png?raw=true" width="200">
-<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_5.png?raw=true" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_1.png" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_2.png" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_3.png" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_4.png" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_5.png" width="200">
 </p>
 
 ### 🚀 How to Use plugin
