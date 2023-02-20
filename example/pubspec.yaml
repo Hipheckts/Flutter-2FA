@@ -1,5 +1,5 @@
 name: flutter_2fa_example
-description: A new Flutter App to demonstrates how to use the .
+description: A new Flutter App to demonstrates how to use the flutter_2fa.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

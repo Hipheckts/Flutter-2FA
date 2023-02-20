@@ -1,39 +1,48 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Flutter Mono
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+`** This is an unofficial SDK for flutter`
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+This package to helps adds 2 Factor Authentiation in any flutter project with ease.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## 📸 Screen Shots
 
-## Features
+<p float="left">
+<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_1.png?raw=true" width="200">
+<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_2.png?raw=true" width="200">
+<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_3.png?raw=true" width="200">
+<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_4.png?raw=true" width="200">
+<img src="https://github.com/hipheckts/flutter_2fa/blob/main/sc_5.png?raw=true" width="200">
+</p>
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+### 🚀 How to Use plugin
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+- Launch Flutter 2FA with activate method in any button/onpressed action
 
 ```dart
-const like = 'sample';
+import 'package:flutter_2fa/flutter_2fa.dart';
+
+  void launch() async {
+       await Flutter2FA().activate(
+                        context: context,
+                        appName: "Flutter 2FA", // your app ame
+                        email: "hipheckt@xyz.com" // email of user to authenticate
+                        );
+  }
 ```
 
-## Additional information
+- Verify user authentication
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+import 'package:flutter_2fa/flutter_2fa.dart';
+
+     ...
+        void verify() async {
+            await Flutter2FA().verify(context: context);
+        }
+      ...
+
+```
+
+## ✨ Contribution
+
+Lots of PR's would be needed to improve this plugin. So lots of suggestions and PRs are welcome.
