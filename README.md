@@ -1,4 +1,4 @@
-# Flutter Mono
+# Flutter 2FA
 
 `** This is an unofficial SDK for flutter`
 
@@ -7,11 +7,11 @@
 ## 📸 Screen Shots
 
 <p float="left">
-<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_1.png" width="200">
-<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_2.png" width="200">
-<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_3.png" width="200">
-<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_4.png" width="200">
-<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_5.png" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_1.png?raw=true" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_2.png?raw=true" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_3.png?raw=true" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_4.png?raw=true" width="200">
+<img src="https://github.com/Hipheckts/Flutter-2FA/blob/master/sc_5.png?raw=true" width="200">
 </p>
 
 ### 🚀 How to Use plugin
