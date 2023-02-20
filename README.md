@@ -45,4 +45,4 @@ import 'package:flutter_2fa/flutter_2fa.dart';
 
 ## ✨ Contribution
 
-Lots of PR's would be needed to improve this plugin. So lots of suggestions and PRs are welcome.
+PR's and suggestions are very much welcome.
