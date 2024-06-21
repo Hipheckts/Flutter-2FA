@@ -32,8 +32,11 @@ class _GenerateCodeState extends State<GenerateCode> {
     localStorage.setBool('activate2FA', true);
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('2FA Activation Complete!')),
+      const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('2FA Activation Complete!')),
     );
+    Navigator.pop(context);
   }
 
   @override
