@@ -53,7 +53,7 @@ class _GenerateCodeState extends State<GenerateCode> {
       children: [
         const Text('Scan Code from Authenticator'),
         const SizedBox(height: 20),
-        QrImage(
+        QrImageView(
           data:
               'otpauth://totp/${widget.appName}:${widget.email}?secret=$secKey&issuer=${widget.appName}&algorithm=SHA1',
           version: QrVersions.auto,
