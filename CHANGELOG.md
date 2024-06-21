@@ -1,3 +1,5 @@
+## [1.0.3]
+QR Viewer FIx
 
 ## [1.0.2]
 SDK Version Update
