@@ -1,5 +1,8 @@
-## [1.0.5]
+## [1.0.6]
 Added custom themes, biometrics, secure storage, backup recovery codes, and custom TOTP configs.
+
+## [1.0.5]
+Added custom themes.
 
 ## [1.0.4]
 Dependency updates
