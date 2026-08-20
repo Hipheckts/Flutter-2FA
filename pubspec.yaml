@@ -12,13 +12,13 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.1.8
-  otp: ^3.1.4
+  otp: ^3.2.0
   bip39: ^1.0.6
   qr_flutter: ^4.1.0
-  shared_preferences: ^2.2.3
-  pinput: ^2.3.0
-  local_auth: ^2.2.0
-  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.5.5
+  pinput: ^6.0.2
+  local_auth: ^3.0.2
+  flutter_secure_storage: ^11.0.0
   
 dev_dependencies:
   flutter_test:

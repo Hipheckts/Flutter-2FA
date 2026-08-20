@@ -132,4 +132,4 @@ Contributions, issues, and feature requests are very welcome! Feel free to open 
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](file:///Users/ifeoluwa/Codes/Flutter-2FA/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

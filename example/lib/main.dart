@@ -30,7 +30,7 @@ class MyHome extends StatelessWidget {
   const MyHome({super.key});
 
   // Example of v1.0.5 configuration with customized theme and options enabled
-  static final _2faConfig = Flutter2FAConfig(
+  static final twoFaConfig = Flutter2FAConfig(
     useSecureStorage: false, // Set to true to store keys securely in Keychain/Keystore
     allowBiometrics: true,   // Enables Face ID/Touch ID/Fingerprint fallback
     totpInterval: 30,
@@ -69,11 +69,11 @@ class MyHome extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () => Flutter2FA().activate(
+                onPressed: () => const Flutter2FA().activate(
                   context: context,
                   appName: "Flutter 2FA Demo App",
                   email: "user@example.com",
-                  config: _2faConfig, // Pass v1.0.5 config
+                  config: twoFaConfig, // Pass v1.0.5 config
                 ),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
                 child: const Text('Setup / Activate 2FA'),
@@ -84,10 +84,10 @@ class MyHome extends StatelessWidget {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () => Flutter2FA().verify(
+                onPressed: () => const Flutter2FA().verify(
                   context: context,
                   page: const Success(),
-                  config: _2faConfig, // Pass v1.0.5 config
+                  config: twoFaConfig, // Pass v1.0.5 config
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

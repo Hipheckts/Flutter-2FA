@@ -65,10 +65,8 @@ class _VerifyCodeState extends State<VerifyCode> {
 
       final didAuthenticate = await _localAuth.authenticate(
         localizedReason: 'Please authenticate to log in with 2FA',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true,
       );
 
       if (didAuthenticate) {
@@ -129,6 +127,7 @@ class _VerifyCodeState extends State<VerifyCode> {
     if (code.isEmpty) return;
 
     final isCorrect = await storage.useRecoveryCode(code);
+    if (!mounted) return;
     if (isCorrect) {
       _onVerificationSuccess();
     } else {
@@ -152,7 +151,7 @@ class _VerifyCodeState extends State<VerifyCode> {
       textStyle: TextStyle(fontSize: 20, color: widget.config.textColor),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: widget.config.textColor?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.5)),
+        border: Border.all(color: widget.config.textColor?.withValues(alpha: 0.3) ?? Colors.grey.withValues(alpha: 0.5)),
       ),
     );
 
@@ -259,9 +258,9 @@ class _VerifyCodeState extends State<VerifyCode> {
                     controller: recoveryController,
                     decoration: InputDecoration(
                       hintText: 'xxxx-xxxx-xxxx',
-                      hintStyle: TextStyle(color: widget.config.textColor?.withOpacity(0.5)),
+                      hintStyle: TextStyle(color: widget.config.textColor?.withValues(alpha: 0.5)),
                       border: const OutlineInputBorder(),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.config.textColor?.withOpacity(0.3) ?? Colors.grey)),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.config.textColor?.withValues(alpha: 0.3) ?? Colors.grey)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.config.textColor ?? Colors.black)),
                     ),
                     style: textStyle.copyWith(fontFamily: 'monospace'),

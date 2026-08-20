@@ -57,6 +57,8 @@ class _GenerateCodeState extends State<GenerateCode> {
     await storage.writeBool('activate2FA', true);
     await storage.saveRecoveryCodes(recoveryCodes);
 
+    if (!context.mounted) return;
+
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -111,7 +113,7 @@ class _GenerateCodeState extends State<GenerateCode> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -135,7 +137,7 @@ class _GenerateCodeState extends State<GenerateCode> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -170,7 +172,7 @@ class _GenerateCodeState extends State<GenerateCode> {
                   ),
                   subtitle: Text(
                     'Tap to expand and save codes',
-                    style: theme.textTheme.bodySmall?.merge(textStyle).copyWith(color: widget.config.textColor?.withOpacity(0.6)),
+                    style: theme.textTheme.bodySmall?.merge(textStyle).copyWith(color: widget.config.textColor?.withValues(alpha: 0.6)),
                   ),
                   iconColor: widget.config.textColor,
                   collapsedIconColor: widget.config.textColor,
@@ -196,7 +198,7 @@ class _GenerateCodeState extends State<GenerateCode> {
                         return Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
