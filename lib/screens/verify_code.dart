@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:otp/otp.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:pinput/pinput.dart';
+import 'package:flutter_2fa/flutter_2fa_config.dart';
+import 'package:flutter_2fa/storage_helper.dart';
 
 class VerifyCode extends StatefulWidget {
   final Widget successPage;
-  const VerifyCode({Key? key, required this.successPage}) : super(key: key);
+  final Flutter2FAConfig config;
+
+  const VerifyCode({
+    Key? key,
+    required this.successPage,
+    required this.config,
+  }) : super(key: key);
 
   @override
   State<VerifyCode> createState() => _VerifyCodeState();
@@ -13,170 +21,294 @@ class VerifyCode extends StatefulWidget {
 
 class _VerifyCodeState extends State<VerifyCode> {
   final codeController = TextEditingController();
+  final recoveryController = TextEditingController();
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
-  // final TextEditingController codeController = TextEditingController();
+  
   String secKey = '';
   bool isActive = false;
-
-  @override
-  void dispose() {
-    codeController.dispose();
-    focusNode.dispose();
-    super.dispose();
-  }
-
-  check2FA() async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    setState(() {
-      isActive = localStorage.getBool('activate2FA')!;
-    });
-  }
-
-  getUserKey() async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    secKey = localStorage.getString('secKey')!;
-  }
-
-  validateCode() {
-    final code = codeController.text;
-    final generatedCode = OTP.generateTOTPCodeString(
-        secKey, DateTime.now().millisecondsSinceEpoch,
-        algorithm: Algorithm.SHA1, isGoogle: true);
-    if (code == generatedCode) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.green,
-        content: Text('Code verified'),
-      ));
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => widget.successPage));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('Code verification failed'),
-      ));
-    }
-  }
+  bool showRecoveryInput = false;
+  
+  late final StorageHelper storage;
+  final LocalAuthentication _localAuth = LocalAuthentication();
 
   @override
   void initState() {
     super.initState();
-    check2FA();
-    getUserKey();
+    storage = StorageHelper(useSecure: widget.config.useSecureStorage);
+    checkAndInit();
+  }
+
+  @override
+  void dispose() {
+    codeController.dispose();
+    recoveryController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> checkAndInit() async {
+    isActive = await storage.readBool('activate2FA');
+    final storedKey = await storage.readString('secKey');
+    secKey = storedKey ?? '';
+    setState(() {});
+
+    if (isActive && widget.config.allowBiometrics) {
+      _authenticateWithBiometrics();
+    }
+  }
+
+  Future<void> _authenticateWithBiometrics() async {
+    try {
+      final isAvailable = await _localAuth.canCheckBiometrics || await _localAuth.isDeviceSupported();
+      if (!isAvailable) return;
+
+      final didAuthenticate = await _localAuth.authenticate(
+        localizedReason: 'Please authenticate to log in with 2FA',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (didAuthenticate) {
+        _onVerificationSuccess();
+      }
+    } catch (e) {
+      debugPrint('Biometric authentication failed: $e');
+    }
+  }
+
+  void _onVerificationSuccess() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.green,
+        content: Text('Verification successful!'),
+      ),
+    );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => widget.successPage),
+    );
+  }
+
+  void validateCode() {
+    final code = codeController.text;
+    
+    // Determine algorithm
+    Algorithm otpAlg = Algorithm.SHA1;
+    if (widget.config.totpAlgorithm == 'SHA256') {
+      otpAlg = Algorithm.SHA256;
+    } else if (widget.config.totpAlgorithm == 'SHA512') {
+      otpAlg = Algorithm.SHA512;
+    }
+
+    final generatedCode = OTP.generateTOTPCodeString(
+      secKey,
+      DateTime.now().millisecondsSinceEpoch,
+      algorithm: otpAlg,
+      interval: widget.config.totpInterval,
+      length: widget.config.totpDigits,
+      isGoogle: true,
+    );
+
+    if (code == generatedCode) {
+      _onVerificationSuccess();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Code verification failed'),
+        ),
+      );
+    }
+  }
+
+  Future<void> validateRecoveryCode() async {
+    final code = recoveryController.text.trim();
+    if (code.isEmpty) return;
+
+    final isCorrect = await storage.useRecoveryCode(code);
+    if (isCorrect) {
+      _onVerificationSuccess();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Invalid recovery code'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const focusedBorderColor = Colors.black;
+    final theme = Theme.of(context);
+    final textStyle = TextStyle(color: widget.config.textColor);
 
-    const defaultPinTheme = PinTheme(
-      width: 56,
-      height: 56,
-      textStyle: TextStyle(
-        fontSize: 22,
-      ),
+    final defaultPinTheme = widget.config.defaultPinTheme ?? PinTheme(
+      width: 50,
+      height: 50,
+      textStyle: TextStyle(fontSize: 20, color: widget.config.textColor),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.black),
-        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: widget.config.textColor?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.5)),
+      ),
+    );
+
+    final focusedPinTheme = widget.config.focusedPinTheme ?? defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration!.copyWith(
+        border: Border.all(color: widget.config.textColor ?? Colors.indigo),
+      ),
+    );
+
+    final errorPinTheme = widget.config.errorPinTheme ?? defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration!.copyWith(
+        border: Border.all(color: Colors.redAccent),
       ),
     );
 
     return Scaffold(
-        body: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 35.0),
+      backgroundColor: widget.config.backgroundColor,
+      appBar: AppBar(
+        title: Text('Verify 2FA', style: widget.config.appBarTitleStyle),
+        backgroundColor: widget.config.appBarColor,
+        iconTheme: widget.config.textColor != null ? IconThemeData(color: widget.config.textColor) : null,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Form(
             key: formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text('Enter Code from Authenticator'),
-                const SizedBox(height: 30),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Pinput(
-                    length: 6,
-                    controller: codeController,
-                    focusNode: focusNode,
-                    androidSmsAutofillMethod:
-                        AndroidSmsAutofillMethod.smsUserConsentApi,
-                    listenForMultipleSmsOnAndroid: true,
-                    defaultPinTheme: defaultPinTheme,
-                    hapticFeedbackType: HapticFeedbackType.lightImpact,
-                    onCompleted: (pin) {
-                      validateCode();
+                const SizedBox(height: 24),
+                if (!showRecoveryInput) ...[
+                  Text(
+                    'Enter Security Code',
+                    style: theme.textTheme.titleMedium?.merge(textStyle).copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Enter the verification code generated by your Authenticator app.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.merge(textStyle),
+                  ),
+                  const SizedBox(height: 32),
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Pinput(
+                      length: widget.config.totpDigits,
+                      controller: codeController,
+                      focusNode: focusNode,
+                      defaultPinTheme: defaultPinTheme,
+                      focusedPinTheme: focusedPinTheme,
+                      errorPinTheme: errorPinTheme,
+                      onCompleted: (pin) => validateCode(),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  if (widget.config.allowBiometrics) ...[
+                    IconButton(
+                      icon: const Icon(Icons.fingerprint, size: 48),
+                      color: widget.config.textColor ?? theme.primaryColor,
+                      onPressed: _authenticateWithBiometrics,
+                    ),
+                    Text(
+                      'Use Biometrics',
+                      style: theme.textTheme.bodySmall?.merge(textStyle),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: validateCode,
+                      style: widget.config.primaryButtonStyle,
+                      child: Text('Verify Code', style: widget.config.primaryButtonTextStyle),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        showRecoveryInput = true;
+                      });
                     },
-                    onChanged: (value) {},
-                    cursor: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 9),
-                          width: 22,
-                          height: 1,
-                          color: focusedBorderColor,
-                        ),
-                      ],
+                    style: widget.config.secondaryButtonStyle,
+                    child: Text(
+                      'Use a Recovery Code',
+                      style: widget.config.secondaryButtonTextStyle ?? TextStyle(color: theme.primaryColor),
                     ),
-                    focusedPinTheme: defaultPinTheme.copyWith(
-                      decoration: defaultPinTheme.decoration!.copyWith(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: focusedBorderColor),
-                      ),
+                  ),
+                ] else ...[
+                  Text(
+                    'Enter Recovery Code',
+                    style: theme.textTheme.titleMedium?.merge(textStyle).copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Enter one of the backup recovery codes generated during activation.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.merge(textStyle),
+                  ),
+                  const SizedBox(height: 32),
+                  TextFormField(
+                    controller: recoveryController,
+                    decoration: InputDecoration(
+                      hintText: 'xxxx-xxxx-xxxx',
+                      hintStyle: TextStyle(color: widget.config.textColor?.withOpacity(0.5)),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.config.textColor?.withOpacity(0.3) ?? Colors.grey)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: widget.config.textColor ?? Colors.black)),
                     ),
-                    errorPinTheme: defaultPinTheme.copyBorderWith(
-                      border: Border.all(color: Colors.redAccent),
+                    style: textStyle.copyWith(fontFamily: 'monospace'),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: validateRecoveryCode,
+                      style: widget.config.primaryButtonStyle,
+                      child: Text('Verify Recovery Code', style: widget.config.primaryButtonTextStyle),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        showRecoveryInput = false;
+                      });
+                    },
+                    style: widget.config.secondaryButtonStyle,
+                    child: Text(
+                      'Back to App Verification',
+                      style: widget.config.secondaryButtonTextStyle ?? TextStyle(color: theme.primaryColor),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: widget.config.secondaryButtonStyle,
+                    child: Text(
+                      'Cancel',
+                      style: widget.config.secondaryButtonTextStyle ?? const TextStyle(color: Colors.red),
                     ),
                   ),
                 ),
-                const SizedBox(height: 100),
-                SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        focusNode.unfocus();
-                        formKey.currentState!.validate();
-                        validateCode();
-                      },
-                      child: const Text('Verify Code'),
-                    )),
-                const SizedBox(height: 30),
-                SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          Navigator.pop(context);
-                        });
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.transparent),
-                        shadowColor: MaterialStateProperty.all<Color>(
-                            Colors.transparent),
-                        overlayColor: MaterialStateProperty.resolveWith(
-                          (states) {
-                            return states.contains(MaterialState.pressed)
-                                ? Colors.red.withOpacity(0.1)
-                                : null;
-                          },
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ))
               ],
             ),
           ),
-        )
-      ],
-    ));
+        ),
+      ),
+    );
   }
 }
